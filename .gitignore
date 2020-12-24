@@ -1,0 +1,6 @@
+Gemfile.lock
+_site/
+_drafts/
+*.gem
+*.swp
+*~

@@ -1,0 +1,188 @@
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:300,400');
+
+body {
+  width: 90%;
+  max-width: 50em;
+  margin: 1em auto;
+  line-height: 1.8;
+  font-family: Consolas, 'Source Code Pro', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  color: #222;
+}
+
+h1, h2, h3 {
+  margin: 1em 0;
+  font-weight: 400;
+}
+
+ul li {
+  list-style: square;
+}
+
+dt {
+  margin: 1em 0;
+}
+
+dd {
+  display: list-item;
+  margin-left: 2.5em;
+  list-style: square;
+}
+
+hr {
+  margin: 2em auto;
+  border: 0;
+  border-top: 2px dotted #a6a6a6;
+}
+
+p {
+  text-indent: 1em;
+}
+
+a {
+  padding: .1em 0;
+  text-decoration: none;
+  color: #888;
+  border-bottom: 1px dotted #888;
+}
+
+a:hover {
+  color: #000;
+}
+
+a:hover {
+  border-bottom: 1px solid #888;
+}
+
+a:hover img {
+  opacity: 0.7;
+}
+
+img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+@media (max-width: 40em) {
+  img {
+    width: 100%;
+    max-height: 100%;
+  }
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: .5em;
+  border-bottom: 1px solid #a6a6a6;
+}
+
+blockquote {
+  border-left: 5px solid #e5e5e5;
+  margin: 1em -1em 0 -1em;
+  padding: .2em 2em;
+}
+
+blockquote p {
+  margin: 0;
+  text-indent: 0;
+}
+
+pre {
+  white-space: pre;
+}
+
+pre, code {
+  font-family: Consolas, 'Source Code Pro', monospace;
+}
+
+code, .highlighter-rouge {
+  background: #f5f5f5;
+  border-radius: 5px;
+}
+
+code {
+  padding: .1em .4em;
+}
+
+.highlighter-rouge {
+  border: 1px solid #eee;
+}
+
+div.highlighter-rouge {
+  margin: 1em -1em 0 -1em;
+  padding: .2em 1em;
+  overflow-wrap: normal;
+}
+
+pre.highlight {
+  margin-top: .8em;
+  margin-bottom: .8em;
+  overflow: auto;
+  font-size: smaller;
+}
+
+.highlighter-rouge code {
+  padding: 0;
+}
+
+#disqus_thread {
+  margin: 2em 0;
+}
+
+.share-buttons {
+  margin: 2em 0;
+}
+
+.share-button {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.footnotes {
+  margin: 2em auto;
+  border-top: 2px dotted #a6a6a6;
+}
+
+.anchor {
+  visibility: hidden;
+}
+
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor {
+  visibility: visible;
+}
+
+time {
+  color: #888;
+}
+
+small {
+  display: block;
+  margin: 2em 0;
+  font-size: medium;
+  text-align: center;
+}
+
+::selection {
+  color: #fff;
+  background: #000;
+}
+
+::-moz-selection {
+  color: #fff;
+  background: #000;
+}
+
+:target {
+  font-weight: bolder;
+  background: rgba(255, 255, 0, 0.2);
+}

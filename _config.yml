@@ -1,0 +1,35 @@
+baseurl: /diary
+author:
+  name: shng
+  picture: 
+  #twitter: st98_
+title: shng
+description: shng从别人(st98)那抄过来的博客主题写的博客。
+production_url: https://aoyama7.github.io
+
+encoding: utf-8
+
+permalink: /posts/:year-:month-:day-:title.html
+timezone: Asia/Tokyo
+
+feed:
+  path: atom.xml
+
+exclude: ['Gemfile', 'Gemfile.lock', 'Rakefile']
+
+defaults:
+  -
+    scope:
+      path: ''
+    values:
+      layout: default
+
+markdown: kramdown
+kramdown: 
+  input: GFM
+  auto_ids: true
+  hard_wrap: true
+  syntax_highlighter: rouge
+
+gems:
+  - jekyll-feed
