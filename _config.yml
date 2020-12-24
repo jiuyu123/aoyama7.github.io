@@ -5,12 +5,12 @@ author:
   #twitter: st98_
 title: shng
 description: shng从别人(st98)那抄过来的博客主题写的博客。
-production_url: shng.fun
+production_url: https://aoyama7.github.io
 
 encoding: utf-8
 
 permalink: /posts/:year-:month-:day-:title.html
-timezone: Asia/Shanghai
+timezone: Asia/Tokyo
 
 feed:
   path: atom.xml
