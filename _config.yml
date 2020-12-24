@@ -10,7 +10,7 @@ production_url: https://aoyama7.github.io
 encoding: utf-8
 
 permalink: /posts/:year-:month-:day-:title.html
-timezone: Asia/Tokyo
+timezone: Asia/Shanghai
 
 feed:
   path: atom.xml
