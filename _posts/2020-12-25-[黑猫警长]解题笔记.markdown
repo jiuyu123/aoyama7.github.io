@@ -71,7 +71,7 @@ Black-CatSheriff=67f5ea2e063353fe3a219e35fa13c15cbf73df6fc6cb89fa0c2eecb50a7d027
 
 命令执行了，但是没有发现flag在哪里。八嘎！
 
-后来看了[wkr](https://www.wkr.moe/)的[wp](https://www.wkr.moe/ctf/dayattack/424.htm)，然后自己测试了一下，发现`echo exec(ls);`只返回一个值，所以这里只有一个`vendor`，应该把语句换成``;echo `ls` `` 这样就能显示出目录了。
+后来看了[wkr](https://www.wkr.moe/)的[wp](https://www.wkr.moe/ctf/dayattack/424.html)，然后自己测试了一下，发现`echo exec(ls);`只返回一个值，所以这里只有一个`vendor`，应该把语句换成``;echo `ls` `` 这样就能显示出目录了。
 
 ![image-20201226130100978](..\images\image-20201226130100978.png)
 

