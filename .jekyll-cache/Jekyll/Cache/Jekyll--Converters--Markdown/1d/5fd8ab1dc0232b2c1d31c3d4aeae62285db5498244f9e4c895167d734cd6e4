@@ -1,0 +1,18 @@
+I"�<h3 id="web41">Web41</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'c'</span><span class="p">])){</span>
+  <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'c'</span><span class="p">];</span>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">'/[0-9]|[a-z]|\^|\+|\~|\$|\[|\]|\{|\}|\&amp;|\-/i'</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)){</span>
+    <span class="k">eval</span><span class="p">(</span><span class="s2">"echo(</span><span class="nv">$c</span><span class="s2">);"</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+  <span class="nb">highlight_file</span><span class="p">(</span><span class="k">__FILE__</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>ban了数字和小写字母，运算符<code class="language-plaintext highlighter-rouge">+</code>、<code class="language-plaintext highlighter-rouge">-</code>、<code class="language-plaintext highlighter-rouge">^</code>、<code class="language-plaintext highlighter-rouge">~</code>、<code class="language-plaintext highlighter-rouge">$</code>等一些常用符号</p>
+
+<p>emmmm，我去看看网上的脚本是怎么回事</p>
+
+:ET
