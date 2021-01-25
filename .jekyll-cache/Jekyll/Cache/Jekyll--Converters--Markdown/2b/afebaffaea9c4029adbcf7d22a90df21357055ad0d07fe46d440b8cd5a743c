@@ -1,0 +1,13 @@
+I"�<p>上次在实验楼看到一个关于linux提权的训练营，写的非常好，不过过了一段时间忘得也差不多了，这次就趁着楼赛再复习一遍吧。<br />
+ 		 <a href="#一-passwd文件提权"><strong>一.<code class="language-plaintext highlighter-rouge">passwd</code> 文件提权</strong></a><br />
+ 		 <a href="#二-shadow文件提权"><strong>二.<code class="language-plaintext highlighter-rouge">shadow</code> 文件提权</strong></a><br />
+		 <a href="#三-suid提权"><strong>三.<code class="language-plaintext highlighter-rouge">SUID</code> 可执行文件提权</strong></a><br />
+		 <a href="#四-cronjobs提权"><strong>四.<code class="language-plaintext highlighter-rouge">Cron Jobs</code> 定时任务提权</strong></a><br />
+		 <a href="#五-通配符注入提权"><strong>五.通配符注入提权</strong></a><br />
+		 <a href="#六-sudo提权"><strong>六.<code class="language-plaintext highlighter-rouge">sudo</code> 滥用提权</strong></a><br />
+		 <a href="#七-查找敏感文件提权"><strong>七.敏感文件提权</strong></a><br />
+		 <a href="#八-跳板用户提权"><strong>八.跳板用户提权</strong></a><br />
+		 <a href="#九-内核漏洞提权"><strong>九.<code class="language-plaintext highlighter-rouge">Linux</code> 内核漏洞提权</strong></a><br />
+		 <a href="#十-暴力破解提权"><strong>十.暴力破解提权</strong></a><br />
+		 <a href="#十一-自动化提权工具"><strong>十一.自动化提权</strong></a></p>
+:ET

