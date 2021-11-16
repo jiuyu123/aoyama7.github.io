@@ -2,7 +2,7 @@
 layout: post
 title:  "[*CTF]WriteUp汇总(Web, Misc)"
 date:   2021-01-20 12:00:00 +0800
-categories: [ctf, WriteUp]
+categories: CTF
 ---
 
 # WEB

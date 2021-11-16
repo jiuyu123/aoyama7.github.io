@@ -2,7 +2,7 @@
 layout: post
 title:  "[Starting Point]Archetype"
 date:   2021-02-01 11:30:00 +0800
-categories: HTB
+categories: CTF
 ---
 
 ## 前言

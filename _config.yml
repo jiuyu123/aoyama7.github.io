@@ -1,8 +1,7 @@
 baseurl: 
 author:
   name: shng
-  picture: 
-  #twitter: st98_
+  picture: https://s.gravatar.com/avatar/1cc61d273ece07f6cf743adf734f8c4d?s=80
 title: shng
 description: shng从别人(st98)那抄过来的博客主题写的博客。
 production_url: https://aoyama7.github.io
